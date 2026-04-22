@@ -7,10 +7,10 @@ interface TelegramBody {
     }
 }
 
-async function handler(body: TelegramBody | undefined): Promise<void> {
+async function handler(body: TelegramBody | undefined, token: string): Promise<void> {
     if (body) {
         const messageObj = body.message;
-        await handleMessage(messageObj);
+        await handleMessage(token, messageObj);
     }
 }
 

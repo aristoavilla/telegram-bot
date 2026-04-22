@@ -1,7 +1,11 @@
 import { Hono } from 'hono'
 import handler from '../controller'
 
-const app = new Hono()
+type Bindings = {
+  TELEGRAM_BOT_TOKEN: string
+}
+
+const app = new Hono<{ Bindings: Bindings }>()
 
 app.get('/', (c) => {
   const body : Promise<unknown> = c.req.json()
@@ -10,7 +14,7 @@ app.get('/', (c) => {
 
 app.post('/', async (c) => {
   const body = await c.req.json()
-  await handler(body)
+  await handler(body, c.env.TELEGRAM_BOT_TOKEN)
   console.log(body)
   return c.text('OK')
 })

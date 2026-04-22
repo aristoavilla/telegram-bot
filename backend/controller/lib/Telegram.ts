@@ -7,15 +7,15 @@ interface TelegramMessage {
 
 const userState = new Map<number, "awaiting_answer">()
 
-async function sendMessage(chatId: number, text: string): Promise<unknown> {
-    const fetchInstance = await getFetchInstance();
+async function sendMessage(token: string, chatId: number, text: string): Promise<unknown> {
+    const fetchInstance = await getFetchInstance(token);
     return fetchInstance.post('sendMessage', {
         chat_id: chatId,
         text: text
     });
 }
 
-async function handleMessage(messageObject: TelegramMessage): Promise<unknown> {
+async function handleMessage(token: string, messageObject: TelegramMessage): Promise<unknown> {
     const messageChatId = messageObject.chat.id
     const messageText = messageObject.text
 
@@ -23,20 +23,20 @@ async function handleMessage(messageObject: TelegramMessage): Promise<unknown> {
         switch (messageText) {
             case "/start":
                 userState.set(messageChatId, "awaiting_answer")
-                return sendMessage(messageChatId, "What is 5 + 5?");
+                return sendMessage(token, messageChatId, "What is 5 + 5?");
             default:
-                return sendMessage(messageChatId, "Unknown command");
+                return sendMessage(token, messageChatId, "Unknown command");
         }
     } else {
         if (userState.get(messageChatId) === "awaiting_answer") {
             userState.delete(messageChatId)
             if (messageText.trim() === "10") {
-                return sendMessage(messageChatId, "correct")
+                return sendMessage(token, messageChatId, "correct")
             } else {
-                return sendMessage(messageChatId, "YOU DUMBASS LMFAO")
+                return sendMessage(token, messageChatId, "YOU DUMBASS LMFAO")
             }
         }
-        return sendMessage(messageChatId, messageText)
+        return sendMessage(token, messageChatId, messageText)
     }
 }
 
