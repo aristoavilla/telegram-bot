@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "dev": "cd backend && npx wrangler dev"
+  }
+}
