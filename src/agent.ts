@@ -1,27 +1,42 @@
 import { AgentTool, loop } from "@ssww.one/framework";
 import { z } from "zod";
 
-export async function mathAgent(at: AgentTool) {
-  at.print("I'm a math agent! Ask me anything.", true);
- 
-  // Agent loop to keep interaction going
+export async function questionnaireAgent(at: AgentTool) {
+  // 1. Knowledge Preparation
+  await at.prepareKnowledge('You are a helpful assistant collecting user data.');
+  await at.prepareKnowledge(
+    `Questionnaire Format (all required data): name, email, phone number
+Your task is to collect data from the user based on the questionnaire format above
+in the correct order (order matters). The user may provide data in any order.`
+  );
+
+  // 2. Greetings
+  at.print('> Hi please provide your name, email, and phone number please, thank you', true);
+
+  // 3. Main loop — gather all data and exit
   await loop(async () => {
-    const question = await at.waitForUserInstruction();
- 
-    // 2. Ask LLM to extract data strictly using Zod schema
-    const data = await at.askLLM(
-      `Is the user asking a math question? "${question}"`,
-      z.object({ isMath: z.boolean() })
+    const has_complete_data: boolean = await at.askLLM(
+      `Has the user provided all required data for the questionnaire?`,
+      z.boolean()
     );
- 
-    if (data.isMath) {
-      // 3. Stream output to the user immediately
-      await at.streamLLM(`Solve this math question clearly: ${question}`, (chunk) => {
-        at.print(chunk);
-      });
-      at.print('', true); // Finish line
+
+    if (has_complete_data) {
+      const data: string[] = await at.askLLM(
+        `Extract the latest data provided by the user in the correct order
+based on the required format. Return the result as an array of strings.
+For optional fields, return an empty string.`,
+        z.array(z.string())
+      );
+      console.log({ data });
+      
+      at.exit('Thank you');
+      return;
     } else {
-      at.print("I can only answer math questions!", true);
+      const instruction = await at.waitForUserInstruction();
+      const res = await at.askLLM(
+        `User response: "${instruction}", now respond the user`
+      );
+      at.print(`> ${res}`, true);
     }
   });
 }
