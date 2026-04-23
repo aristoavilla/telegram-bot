@@ -1,5 +1,11 @@
 {
   "scripts": {
-    "dev": "cd backend && npx wrangler dev"
+    "dev": "cd backend && npx wrangler dev",
+    "start": "npx tsx src/index.ts"
+  },
+  "dependencies": {
+    "@ssww.one/framework": "^0.5.14",
+    "zod": "^4.3.6",
+    "dotenv": "^16.0.0"
   }
 }
