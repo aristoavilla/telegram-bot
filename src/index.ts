@@ -1,8 +1,8 @@
 import 'dotenv/config';
-import { startAgentTelegram, GoogleGenAILLM } from "@ssww.one/framework";
-import { agent } from "./agent";
+import { startAgentTelegram, OpenAILLM } from "@ssww.one/framework";
+import {mathAgent} from "./agent";
 
-startAgentTelegram(agent, {
-  llm: new GoogleGenAILLM(),
+startAgentTelegram(mathAgent, {
+  llm: new OpenAILLM(),
   token: process.env.TELEGRAM_BOT_TOKEN
 });
